@@ -3,9 +3,7 @@ import pyocr
 import pyocr.builders
 import pyautogui
 import numpy as np
-
 import time
-
 import dropbox
 import requests
 import json
@@ -133,7 +131,7 @@ if __name__ == "__main__":
         comment = TranslationActors("Comment.png")
 
         if (user is not "") and (comment is not "") and (comment != comment_history):
-            if (user is not user_history):
+            if user is not user_history:
                 transferData.upload_file(file_from, file_to)
                 sleep(3)
             discord_contents = {
