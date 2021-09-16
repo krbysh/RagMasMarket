@@ -80,7 +80,7 @@ def ScreenShot(x1, y1, x2, y2):
 
 
 def OptimizeUser(image):
-    border = 105
+    border = 100
     arr = np.array(image)
     for i in range(len(arr)):
         for j in range(len(arr[i])):
@@ -95,7 +95,7 @@ def OptimizeUser(image):
     return Image.fromarray(arr)
 
 def OptimizeComment(image):
-    border = 180
+    border = 150
     arr = np.array(image)
     for i in range(len(arr)):
         for j in range(len(arr[i])):
