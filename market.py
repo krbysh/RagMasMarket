@@ -4,18 +4,17 @@ import pyocr.builders
 import pyautogui
 import pyperclip
 import numpy as np
-import requests
-import json
+import dropbox
 
 from subprocess import Popen, PIPE
-from time import sleep
+from time import sleep, time
 from PIL import Image
 from discordwebhook import Discord
 
 itemlist = [
 #	"スモーキーカード",
 #	"エクリプスカード",
-#	"マスターリングカード",
+	"マスターリングカード",
 #	"バジルリスクカードカード",
 #	"ボーカルカード",
 	"ゴーストリングカード",
@@ -23,10 +22,10 @@ itemlist = [
 #	"ロータージャイロカード",
 	"ドラゴンフライカード",
 #	"さすらい狼カード",
-#	"ウッドゴブリンカード",
+	"ウッドゴブリンカード",
 #	"アヌビスカード",
 #	"グリフォンカード",
-	"ヒェグンカード",
+#	"ヒェグンカード",
 	"オークベイビーカード",
 #	"ジャックカード",
 #	"ミュータントドラゴンカード",
@@ -54,8 +53,12 @@ itemlist = [
 #	"火焔鳥ジュリーカード",
 #	"リムルカード",
 #	"クリスタルビースト",
-#	"エンジェリングカード",
-#	"レディータニーカード",
+	"ヴァルキリー・ラーズグリーズカード",
+	"アーケインキューブカード",
+	"思念集合体カード",
+	"魔剣士タナトスカード",
+	"エンジェリングカード",
+	"レディータニーカード",
 	"黄金蟲カード",
 	"デビルリングカード",
 	"デビルリング★カード",
@@ -63,8 +66,8 @@ itemlist = [
 	"ドレイクカード",
 	"ドレイク★カード",
 	"リバースドレイクカード",
-#	"ストラウフカード",
-#	"ストラウフ★カード",
+	"ストラウフカード",
+	"ストラウフ★カード",
 	"リバースストラウフカード",
 	"ゴブリンリーダーカード",
 	"ゴブリンリーダー★カード",
@@ -87,19 +90,19 @@ itemlist = [
 	"月夜花カード",
 	"月夜花★カード",
 	"リバース月夜花カード",
-#	"コボルドリーダーカード",
+	"コボルドリーダーカード",
 	"オークヒーローカード",
 	"ドッペルゲンガーカード",
 	"ドッペルゲンガー★カード",
 	"リバースドッペルゲンガーカード",
-#	"アトロスカード",
-#	"アトロス★カード",
+	"アトロスカード",
+	"アトロス★カード",
 	"リバースアトロスカード",
-#	"オークロードカード",
+	"オークロードカード",
 #	"オークロード★カード",
 #	"リバースオークロードカード",
-#	"データルザウルスカード",
-#	"データルザウルス★カード",
+	"データルザウルスカード",
+	"データルザウルス★カード",
 	"リバースデータルザウルスカード",
 	"オウルバロンカード",
 	"オウルバロン★カード",
@@ -107,14 +110,14 @@ itemlist = [
 	"キメラカード",
 	"キメラ★カード",
 	"リバースキメラカード",
-#	"ブラッディナイトカード",
-#	"ブラッディナイト★カード",
+	"ブラッディナイトカード",
+	"ブラッディナイト★カード",
 	"リバースブラッディナイトカード",
-#	"ランドグリスカード",
-#	"ドラキュラカード",
-#	"ダークロードカード",
+	"ランドグリスカード",
+	"ドラキュラカード",
+	"ダークロードカード",
 #	"ダークロード★カード",
-	"リバースダークロードカード",
+#	"リバースダークロードカード",
 	"バフォメットカード",
 	"タイムホルダーカード",
 	"タイムホルダー★カード",
@@ -128,17 +131,17 @@ itemlist = [
 	"ハティーカード",
 	"炎の領主カホカード",
 	"炎の領主カホ★カード",
-	"リバース炎の領主カホ★カード",
-#	"アークエンジェリングカード",
-#	"ロードオブデスカード",
-#	"ブラッディマーダーカード",
-#	"カトリーヌ＝ケイロンカード",
-#	"セシル＝ディモンカード",
-#	"エレメス＝ガイルカード",v
-#	"ウルフおばあちゃんカード",
-#	"クトルラナックスカード",
-#	"ヒルウィンドカード",
-#	"グルームアンダーナイトカード",
+	"リバース炎の領主カホカード",
+	"アークエンジェリングカード",
+	"ロードオブデスカード",
+	"ブラッディマーダーカード",
+	"カトリーヌ＝ケイロンカード",
+	"セシル＝ディモンカード",
+	"エレメス＝ガイルカード",
+	"ウルフおばあちゃんカード",
+	"クトルラナックスカード",
+	"ヒルウィンドカード",
+	"グルームアンダーナイトカード",
 	"妖蛇ゴルゴーンカード",
 	"荒れ地の領主カード",
 	"ボイタタカード",
@@ -147,13 +150,33 @@ itemlist = [
 	"魂の奏者カード"
 ]
 
-tools = pyocr.get_available_tools()
-
+# nirvana_rom
+discord_url = "https://discord.com/api/webhooks/887696502821105664/CyiKjOX-c8I6BLY2PGmHgJMqLHGgsSEv2zaHsjSQIOITqPGzqAfRblSoqttC-UNHgWSc"
 # krbysh
-discord_url="https://discord.com/api/webhooks/887372286586413098/lDES7A_xl5GVr0ebklUpTV_8rUZvNSB09Hwl6-dLNAoq1nRVzJxIad-yi886mfF0DMPh"
+# discord_url = "https://discord.com/api/webhooks/887372286586413098/lDES7A_xl5GVr0ebklUpTV_8rUZvNSB09Hwl6-dLNAoq1nRVzJxIad-yi886mfF0DMPh"
 discord_headers = {'Content-Type': 'application/json'}
 
+class TransferData:
+    def __init__(self, access_token):
+        self.access_token = access_token
 
+    def upload_file(self, file_from, file_to):
+        """upload a file to Dropbox using API v2
+        """
+        dbx = dropbox.Dropbox(self.access_token)
+
+        with open(file_from, 'rb') as f:
+            dbx.files_upload(f.read(), file_to, mode=dropbox.files.WriteMode.overwrite)
+
+access_token = 'cLCjFHhr-zsAAAAAAAAAAQh1y5kxdh1T_pqAm-kjGISri82aiEFngKpy11gy8fIF'
+transferData = TransferData(access_token)
+
+file_from = 'Avatar.png'
+file_to = '/Avatar.png'  
+
+dp_url="https://dl.dropboxusercontent.com/s/4ps95y182sbctrp/Avatar.png"
+
+tools = pyocr.get_available_tools()
 if len(tools) == 0:
 	print("No OCR tool found")
 	sys.exit(1)
@@ -187,20 +210,20 @@ def PosGet():
 def MarketSearch(Item):
 	pyautogui.moveTo(235,225)  # search Window
 	pyautogui.click()
-	pyautogui.moveTo(735,250, duration=1)  # inputText Window
+	pyautogui.moveTo(735,250)  # inputText Window
 	pyautogui.click()
 
 	pyperclip.copy("^"+Item)
 	sleep(1)
 	pyautogui.hotkey('command','v')
 	pyautogui.hotkey('enter')
-	pyautogui.moveTo(695,355, duration=1)  # searchResult Window
+	pyautogui.moveTo(695,355)  # searchResult Window
 	pyautogui.click()
 
 	sleep(1)
 	sc = pyautogui.screenshot('MarketResult.png',region=(443, 210, 405, 112))
 	im = Image.open(r"MarketResult.png").convert("RGB")
-	#im.crop((4, 8, 103, 106)).save("Icon.png")
+	im.crop((4, 8, 103, 106)).save("Avatar.png")
 	price = im.crop((220, 60, 400, 90))
 	OptimizePrice(price).save("Price.png")
 	time = im.crop((333, 20, 405, 48))
@@ -236,10 +259,10 @@ def TranslationActors(img):
 	txt = tool.image_to_string(
 		Image.open(img),
 		lang="eng",
-		builder=pyocr.builders.TextBuilder(tesseract_layout=5)
+		builder=pyocr.builders.TextBuilder(tesseract_layout=4)
 	)
-	print(txt)
-	return(txt.replace('.',","))
+	print(txt.replace("\n",""))
+	return(txt)
 
 if __name__ == "__main__":
 	p = ""
@@ -247,16 +270,19 @@ if __name__ == "__main__":
 	discord = Discord(url=discord_url)
 	sleep(5)
 
+#	while True:		
 	for item in itemlist:
 		MarketSearch(item)
 
-		p = TranslationActors("Price.png")
-		t = TranslationActors("Time.png")
+		p = TranslationActors("Price.png").replace('.',",")
+		t = TranslationActors("Time.png").replace('.|;|-',":")
+		
+		if p is not "" :
+			transferData.upload_file(file_from, file_to)
+			sleep(3)
 
-		if p is not "":
 			if t is not "":
-				discord.post(content=p + " zeny @" + t, username=item)
-			else:
-				discord.post(content=p + " zeny", username=item)
-	sleep (3600)
-
+				discord.post(content=p + " z @" + t, username=item, avatar_url=dp_url + "?" + str(time()))
+			#else:
+			#	discord.post(content=p + " z", username=item, avatar_url=dp_url + "?" + str(time()))
+#		sleep(3600)
