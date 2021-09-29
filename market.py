@@ -185,7 +185,7 @@ AS = os.getenv('AS')
 url_media = "https://upload.twitter.com/1.1/media/upload.json"
 url_text = "https://api.twitter.com/1.1/statuses/update.json"
 
-discord_url = os.getenv('KRBYSH_URL')
+discord_url = os.getenv('DISCORD_URL')
 discord_headers = {'Content-Type': 'application/json'}
 
 auth = tweepy.OAuthHandler(CK, CS)
