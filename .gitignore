@@ -2,3 +2,4 @@
 *.jpg
 *.sh
 *.log
+.env
