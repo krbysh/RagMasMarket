@@ -13,6 +13,8 @@
 
 # Requirement
 
+Mac での動作確認済。
+
 * Android Emulator
 * Python 3.7.3
 * pyocr 0.8
