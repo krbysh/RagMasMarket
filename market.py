@@ -4,14 +4,14 @@
 import sys
 import pyocr
 import pyocr.builders
+import AppKit
 import pyautogui
 import pyperclip
 import numpy as np
 import os
 import tweepy
 
-from subprocess import Popen, PIPE
-from time import sleep, time
+from time import sleep
 from PIL import Image
 from os.path import join,dirname
 from dotenv import load_dotenv
