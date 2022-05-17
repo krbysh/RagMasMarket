@@ -60,7 +60,7 @@ AK = <Twitter Access Secret>
 # Author
 
 * krbysh
-* krbysh[at]krbysh.net
+* y[at]krbysh.net
 
 # License
 RagMasMarket は [MIT license](https://en.wikipedia.org/wiki/MIT_License) を適用します。
