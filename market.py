@@ -37,6 +37,8 @@ client = Client(auth=ns)
 discord_url = os.getenv('6V_URL')
 discord_headers = {'Content-Type': 'application/json'}
 
+pyautogui.FAILSAFE = False
+
 class TransferData:
     def __init__(self, access_token):
         self.access_token = access_token
@@ -152,6 +154,7 @@ def MarketSearch(Item):
     pyautogui.click(312,265)
     sleep(0.5)
     pyautogui.click(1028,302) 
+    sleep(0.5)
     pyperclip.copy("^"+Item)
     pyautogui.mouseDown(209,952)
     sleep(1.5)
@@ -247,13 +250,12 @@ def process_item(page_id, discord, transfer_data):
     t = 0
     item = readFromPage(page_id)
     # print(item)
-    item_name = item["properties"]["Name"]["title"][0]["plain_text"]
-    item_url = item["public_url"].replace("krbysh.notion.site", "mvpc.krbysh.net")
-    id = str(item["properties"]["ID"]["unique_id"]["number"])
-    image_url = item["properties"]["URL"]["url"].strip()
-
-
     if not item["properties"]["Ignore"]["checkbox"]: 
+        item_name = item["properties"]["Name"]["title"][0]["plain_text"]
+        item_url = item["public_url"].replace("krbysh.notion.site", "mvpc.krbysh.net")
+        id = str(item["properties"]["ID"]["unique_id"]["number"])
+        image_url = item["properties"]["URL"]["url"].strip()
+
         mention = ""
         MarketSearch(item_name)
         p = TranslationActors("img/Price.png")
@@ -269,16 +271,16 @@ def process_item(page_id, discord, transfer_data):
             with open(f'img/Origin.png', 'rb') as f:
                 discord.post(username=item_name, avatar_url=dp_avator_url + "&" + str(time()), content=item_name, file={"attachment": f})
 
-            for acc in item["properties"]["DM"]["rich_text"]:
-                mention = mention + acc + " "
+            if item['properties']['DM']['rich_text']:
+                for acc in item['properties']['DM']['rich_text'][0]['text']['content'].split(','):
+                    mention = mention + acc + " "
             discord.post(username=item_name, avatar_url=dp_avator_url + "&" + str(time()), content=mention)
 #            discord.post(username=item_name, content=mention)
         elif p and not t:
             transfer_data.upload_file("img" + "/Origin.png", "/" + id +".png")
             updatePageImageUrl(page_id, image_url + "&" + str(time()), False)
             # p のみ存在する場合、item_nameをリストに保存
-            expired_items.append("[" + item_name + "](<" + item_url + ">)")
-            #expired_items.append(item_name)
+            # expired_items.append("[" + item_name + "](<" + item_url + ">)")
 
 
 
@@ -292,23 +294,23 @@ if __name__ == "__main__":
     for i in range(5):
         pyautogui.tripleClick()
 
-    start_time = datetime.now()
+#    start_time = datetime.now()
 #    for	item in jl:
 #        process_item(item, discord, transferData)
 
     for page_id in pageFromDB(ndb):
         process_item(page_id, discord, transferData)
 
-    end_time = datetime.now()
-    start_str = start_time.strftime("%Y-%m-%d %H:%M:%S")   
-    end_str = end_time.strftime("%Y-%m-%d %H:%M:%S")
+    #end_time = datetime.now()
+    #start_str = start_time.strftime("%Y-%m-%d %H:%M:%S")   
+    #end_str = end_time.strftime("%Y-%m-%d %H:%M:%S")
     pyautogui.moveTo(1006,934)  # back Window
     pyautogui.click()
-    if expired_items:
-        header = f"**[抽選切れ MVP カードリスト]**\n{start_str} - {end_str}\n<https://mvpc.krbysh.net> is available. Check it out!\n"
-        names_message = header + '\n' + '\n'.join(expired_items)  
-        discord.post(content=names_message)
-        expired_items = []  # リストをリセット
+#    if expired_items:
+#        header = f"**[抽選切れ MVP カードリスト]**\n{start_str} - {end_str}\n<https://mvpc.krbysh.net> is available. Check it out!\n"
+#        names_message = header + '\n' + '\n'.join(expired_items)  
+#        discord.post(content=names_message)
+#        expired_items = []  # リストをリセット
 
 #    im = Image.open(f'img/Sample.png').convert("RGB")
 #    im.crop((26, 10, 128, 138)).save("img/Avatar.png")
